@@ -2,7 +2,8 @@ import { Component, EventEmitter, Input, NgModule, OnInit, Output } from '@angul
 import { Resume } from '../../Abstracts/resume.interface';
 import { NgFor, NgIf } from '@angular/common';
 import { ResumeService } from '../../services/resume.service';
-import { FormsModule } from '@angular/forms';
+import { FormArray, FormGroup, FormsModule } from '@angular/forms';
+import { ResumeFormService } from '../../services/resume-form.service';
 
 @Component({
   selector: 'app-resume-list',
@@ -12,9 +13,14 @@ import { FormsModule } from '@angular/forms';
 })
 export class ResumeListComponent implements OnInit{
   resumes: Resume[] = [];
-editingResumeId: any;
+  editingResumeId: any;
+  resumeForm: FormGroup;
+  successMessage: string = '';
+  errorMessage: string = '';
 
-  constructor(private resumeService: ResumeService) { }
+  constructor(private resumeService: ResumeService, private resumeFormService: ResumeFormService) { 
+    this.resumeForm = this.resumeFormService.createResumeForm();
+  }
   
   ngOnInit(): void {
     this.getResumes();
@@ -48,6 +54,68 @@ editingResumeId: any;
         error: (err) => console.error('Error deleting resume:', err)
       });
     }
+  }
+
+  get certifications(): FormArray {
+    return this.resumeFormService.getFormArray(this.resumeForm, 'certifications') as FormArray;
+  }
+
+  get educations(): FormArray {
+    return this.resumeFormService.getFormArray(this.resumeForm, 'educations');
+  }
+  get experiences(): FormArray {
+    return this.resumeFormService.getFormArray(this.resumeForm, 'experiences');
+  }
+  get skills(): FormArray {
+    return this.resumeFormService.getFormArray(this.resumeForm, 'skills');
+  }
+
+  addCertification(resume: Resume) {
+    // this.resumeFormService.addItem(this.certifications);
+    resume.certifications.push('');
+  }
+
+  removeCertification(index: number) {
+    this.resumeFormService.removeItem(this.certifications, index);
+  }
+
+
+  addEducation(resume: Resume) {
+    // this.resumeFormService.addItem(this.educations);
+    resume.educations.push('');
+
+  }
+
+  removeEducation(index: number) {
+    this.resumeFormService.removeItem(this.educations, index);
+  }
+
+
+  addExperience(resume: Resume) {
+    // this.resumeFormService.addItem(this.experiences);
+    resume.experiences.push('');
+
+  }
+
+  removeExperience(index: number) {
+    this.resumeFormService.removeItem(this.experiences, index);
+  }
+
+
+  addSkill(resume: Resume) {
+    // this.resumeFormService.addItem(this.skills);
+    resume.skills.push('');
+
+  }
+
+  removeSkill(index: number) {
+    this.resumeFormService.removeItem(this.skills, index);
+  }
+
+  resetForm() {
+    this.resumeForm.reset();
+    this.successMessage = '';
+    this.errorMessage = '';
   }
 
 }

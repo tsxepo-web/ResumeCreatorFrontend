@@ -1,14 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { ResumeService } from '../../services/resume.service';
 import { Resume } from '../../Abstracts/resume.interface';
-import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NgFor, NgIf } from '@angular/common';
 import { ResumeFormService } from '../../services/resume-form.service';
 import { ResumeListComponent } from "../resume-list/resume-list.component";
 
 @Component({
   selector: 'app-create-resume',
-  imports: [ReactiveFormsModule, NgFor, NgIf, ResumeListComponent],
+  imports: [ReactiveFormsModule, NgFor, NgIf, ResumeListComponent, FormsModule],
   templateUrl: './create-resume.component.html',
   styleUrl: './create-resume.component.css'
 })
@@ -18,27 +18,25 @@ export class CreateResumeComponent implements OnInit {
   errorMessage: string = '';
   successMessage: string = '';
 
-  constructor(private resumeFormService: ResumeFormService, private resumeService: ResumeService) {
+
+  constructor(private resumeFormService: ResumeFormService) {
     this.resumeForm = this.resumeFormService.createResumeForm();
   }
-
+  
   ngOnInit(): void {
     // this.getResumes();
-  }
+  }  
 
-  
-  
   postResume() {
       if (this.resumeForm.valid) {
         const formValue = this.resumeForm.value;
+
+        console.log('Payload being sent:', formValue);
   
           this.resumeFormService.createResume(formValue).subscribe({
             next: (response) => {
               const id = response;
-              const newResume: Resume = {
-                id: id,
-                ...formValue
-              }
+              const newResume: Resume = { id, ...formValue, };
               this.resumes.push(newResume);
               this.resetForm();
               this.successMessage = 'Resume created successfully!';
@@ -53,21 +51,18 @@ export class CreateResumeComponent implements OnInit {
       }
   }
 
-  
-  
-
   get certifications(): FormArray {
-    return this.resumeForm.get('certifications') as FormArray;
+    return this.resumeFormService.getFormArray(this.resumeForm, 'certifications') as FormArray;
   }
 
   get educations(): FormArray {
-    return this.resumeFormService.getFormArray(this.resumeForm, 'educations');
+    return this.resumeFormService.getFormArray(this.resumeForm, 'educations') as FormArray;
   }
   get experiences(): FormArray {
-    return this.resumeFormService.getFormArray(this.resumeForm, 'experiences');
+    return this.resumeFormService.getFormArray(this.resumeForm, 'experiences') as FormArray;
   }
   get skills(): FormArray {
-    return this.resumeFormService.getFormArray(this.resumeForm, 'skills');
+    return this.resumeFormService.getFormArray(this.resumeForm, 'skills') as FormArray;
   }
 
   addCertification() {

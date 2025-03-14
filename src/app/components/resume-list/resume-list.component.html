@@ -52,7 +52,19 @@
               </div>
               <div>
                 <label for="templateStyle">Template Style:</label>
-                <input type="text" id="templateStyle" [(ngModel)]="resume.templateStyle" placeholder="Template Style" />
+                <select id="templateStyle" [(ngModel)]="resume.templateStyle" name="Template Style">
+                  <option value="Modern">Modern</option>
+                  <option value="Classic">Classic</option>
+                  <option value="Minimal">Minimal</option>
+                </select>
+              </div>
+              
+              <div formArrayName="certifications">
+                <div *ngFor="let certification of resume.certifications; let i = index">
+                  <label for="certification{{i}}">Certification</label>
+                  <input type="text" [id]="'certification' + i" [(ngModel)]="resume.certifications[i].name" placeholder="Certification Name" />
+                </div>
+                <button type="button" (click)="addCertification(resume)">Add Certification</button>
               </div>
             </div>
           </div>
