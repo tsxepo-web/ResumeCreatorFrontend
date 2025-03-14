@@ -1,16 +1,18 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, NgModule, OnInit, Output } from '@angular/core';
 import { Resume } from '../../Abstracts/resume.interface';
 import { NgFor, NgIf } from '@angular/common';
 import { ResumeService } from '../../services/resume.service';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-resume-list',
-  imports: [NgFor, NgIf],
+  imports: [NgFor, NgIf, FormsModule],
   templateUrl: './resume-list.component.html',
   styleUrl: './resume-list.component.css'
 })
 export class ResumeListComponent implements OnInit{
   resumes: Resume[] = [];
+editingResumeId: any;
 
   constructor(private resumeService: ResumeService) { }
   
@@ -30,6 +32,7 @@ export class ResumeListComponent implements OnInit{
       next: () => {
         console.log('Resume updated successfully');
         this.getResumes();
+        this.editingResumeId = null;
       },
       error: (error) => console.error('Error updating resume:', error)
     });

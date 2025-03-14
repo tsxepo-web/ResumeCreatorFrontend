@@ -7,28 +7,56 @@
         <div class="resume-card">
           <div class="resume-header">
             <h3>{{ resume.personalInfo.name }}</h3>
+            <button *ngIf="editingResumeId !== resume.id" (click)="editingResumeId = resume.id">Edit</button>
 
-            <!-- Edit Button -->
-            <button (click)="updateResume(resume)">Edit</button>
+            <!-- Save Button: Saves the resume after editing -->
+            <button *ngIf="editingResumeId === resume.id" (click)="updateResume(resume)">Save</button>
+
 
             <!-- Delete Button -->
             <button (click)="deleteResume(resume.id)">Delete</button>
           </div>
 
           <div class="resume-body">
-            <p>
-              <strong>Email:</strong> {{ resume.personalInfo.email }}
-            </p>
-            <p>
-              <strong>Phone:</strong> {{ resume.personalInfo.phone }}
-            </p>
-            <p>
-              <strong>LinkedIn:</strong> {{ resume.personalInfo.linkedIn }}
-            </p>
-            <p>
-              <strong>Template Style:</strong> {{ resume.templateStyle }}
-            </p>
+            <div *ngIf="editingResumeId !== resume.id">
+              <p>
+                <strong>Email:</strong> {{ resume.personalInfo.email }}
+              </p>
+              <p>
+                <strong>Phone:</strong> {{ resume.personalInfo.phone }}
+              </p>
+              <p>
+                <strong>LinkedIn:</strong> {{ resume.personalInfo.linkedIn }}
+              </p>
+              <p>
+                <strong>Template Style:</strong> {{ resume.templateStyle }}
+              </p>
+            </div>
+          
+            <div *ngIf="editingResumeId === resume.id">
+              <div>
+                <label for="name">Name:</label>
+                <input type="text" id="name" [(ngModel)]="resume.personalInfo.name" placeholder="Email" />
+              </div>
+              <div>
+                <label for="email">Email:</label>
+                <input type="email" id="email" [(ngModel)]="resume.personalInfo.email" placeholder="Email" />
+              </div>
+              <div>
+                <label for="phone">Phone:</label>
+                <input type="text" id="phone" [(ngModel)]="resume.personalInfo.phone" placeholder="Phone Number" />
+              </div>
+              <div>
+                <label for="linkedIn">LinkedIn:</label>
+                <input type="text" id="linkedIn" [(ngModel)]="resume.personalInfo.linkedIn" placeholder="LinkedIn URL" />
+              </div>
+              <div>
+                <label for="templateStyle">Template Style:</label>
+                <input type="text" id="templateStyle" [(ngModel)]="resume.templateStyle" placeholder="Template Style" />
+              </div>
+            </div>
           </div>
+          
         </div>
       </li>
     </ul>
