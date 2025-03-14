@@ -34,8 +34,30 @@ export class ResumeFormService {
     return form.get(key) as FormArray;
   }
 
-  addItem(formArray: FormArray) {
-    formArray.push(this.fb.control(''));
+  addItem(formArray: FormArray, type: string) {
+    let newItem;
+  
+    switch (type) {
+      case 'certifications':
+        newItem = this.fb.group({ name: '' });
+        break;
+      case 'educations':
+        newItem = this.fb.group({
+          institution: '',
+          degree: '',
+        });
+        break;
+      case 'experiences':
+        newItem = this.fb.group({ jobitle: '', company: '', responsibility: '' });
+        break;
+      case 'skills':
+        newItem = this.fb.group({ name: ''});
+        break;
+      default:
+        newItem = this.fb.control('');
+    }
+
+    formArray.push(newItem);
   }
 
   removeItem(formArray: FormArray, index: number) {

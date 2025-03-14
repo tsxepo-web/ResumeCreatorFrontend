@@ -70,52 +70,51 @@ export class ResumeListComponent implements OnInit{
     return this.resumeFormService.getFormArray(this.resumeForm, 'skills');
   }
 
-  addCertification(resume: Resume) {
-    // this.resumeFormService.addItem(this.certifications);
-    resume.certifications.push('');
-  }
+  // addCertification(resume: Resume) {
+  //   this.resumeFormService.addItem(this.certifications);
+  // }
 
-  removeCertification(index: number) {
-    this.resumeFormService.removeItem(this.certifications, index);
-  }
-
-
-  addEducation(resume: Resume) {
-    // this.resumeFormService.addItem(this.educations);
-    resume.educations.push('');
-
-  }
-
-  removeEducation(index: number) {
-    this.resumeFormService.removeItem(this.educations, index);
-  }
+  // removeCertification(index: number) {
+  //   this.resumeFormService.removeItem(this.certifications, index);
+  // }
 
 
-  addExperience(resume: Resume) {
-    // this.resumeFormService.addItem(this.experiences);
-    resume.experiences.push('');
+  // addEducation(resume: Resume) {
+  //   // this.resumeFormService.addItem(this.educations);
+  //   resume.educations.push('');
 
-  }
+  // }
 
-  removeExperience(index: number) {
-    this.resumeFormService.removeItem(this.experiences, index);
-  }
+  // removeEducation(index: number) {
+  //   this.resumeFormService.removeItem(this.educations, index);
+  // }
 
 
-  addSkill(resume: Resume) {
-    // this.resumeFormService.addItem(this.skills);
-    resume.skills.push('');
+  // addExperience(resume: Resume) {
+  //   // this.resumeFormService.addItem(this.experiences);
+  //   resume.experiences.push('');
 
-  }
+  // }
 
-  removeSkill(index: number) {
-    this.resumeFormService.removeItem(this.skills, index);
-  }
+  // removeExperience(index: number) {
+  //   this.resumeFormService.removeItem(this.experiences, index);
+  // }
 
-  resetForm() {
-    this.resumeForm.reset();
-    this.successMessage = '';
-    this.errorMessage = '';
-  }
+
+  // addSkill(resume: Resume) {
+  //   // this.resumeFormService.addItem(this.skills);
+  //   resume.skills.push('');
+
+  // }
+
+  // removeSkill(index: number) {
+  //   this.resumeFormService.removeItem(this.skills, index);
+  // }
+
+  // resetForm() {
+  //   this.resumeForm.reset();
+  //   this.successMessage = '';
+  //   this.errorMessage = '';
+  // }
 
 }

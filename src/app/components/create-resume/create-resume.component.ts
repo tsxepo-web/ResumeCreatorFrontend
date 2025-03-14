@@ -30,13 +30,21 @@ export class CreateResumeComponent implements OnInit {
   postResume() {
       if (this.resumeForm.valid) {
         const formValue = this.resumeForm.value;
+        console.log('Before format', formValue);
 
-        console.log('Payload being sent:', formValue);
+        const formattedResume = {
+          ...formValue,
+          // educations: formValue.certifications.map((edu: any) => ({ 
+          //   institution: edu
+          // }))
+        };
+
+        console.log('Payload sent:', formattedResume);
   
-          this.resumeFormService.createResume(formValue).subscribe({
+          this.resumeFormService.createResume(formattedResume).subscribe({
             next: (response) => {
               const id = response;
-              const newResume: Resume = { id, ...formValue, };
+              const newResume: Resume = { id, ...formattedResume, };
               this.resumes.push(newResume);
               this.resetForm();
               this.successMessage = 'Resume created successfully!';
@@ -66,7 +74,7 @@ export class CreateResumeComponent implements OnInit {
   }
 
   addCertification() {
-    this.resumeFormService.addItem(this.certifications);
+    this.resumeFormService.addItem(this.certifications, 'certifications');
   }
 
   removeCertification(index: number) {
@@ -75,7 +83,7 @@ export class CreateResumeComponent implements OnInit {
 
 
   addEducation() {
-    this.resumeFormService.addItem(this.educations);
+    this.resumeFormService.addItem(this.educations, 'educations');
   }
 
   removeEducation(index: number) {
@@ -84,7 +92,7 @@ export class CreateResumeComponent implements OnInit {
 
 
   addExperience() {
-    this.resumeFormService.addItem(this.experiences);
+    this.resumeFormService.addItem(this.experiences, 'experiences');
   }
 
   removeExperience(index: number) {
@@ -93,7 +101,7 @@ export class CreateResumeComponent implements OnInit {
 
 
   addSkill() {
-    this.resumeFormService.addItem(this.skills);
+    this.resumeFormService.addItem(this.skills, 'skills');
   }
 
   removeSkill(index: number) {
