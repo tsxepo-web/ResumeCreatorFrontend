@@ -1,0 +1,74 @@
+<div class="resume-form-container">
+  <h2>Create Resume</h2>
+
+  <form [formGroup]="resumeForm" (ngSubmit)="postResume()">
+    <div formGroupName="personalInfo">
+      <label for="name">Name</label>
+      <input type="text" id="name" formControlName="name" placeholder="Full Name" />
+
+      <label for="email">Email</label>
+      <input type="email" id="email" formControlName="email" placeholder="Email" />
+
+      <label for="phone">Phone</label>
+      <input type="text" id="phone" formControlName="phone" placeholder="Phone Number" />
+
+      <label for="address">Address</label>
+      <input type="text" id="address" formControlName="address" placeholder="Address" />
+
+      <label for="linkedIn">LinkedIn</label>
+      <input type="text" id="linkedIn" formControlName="linkedIn" placeholder="LinkedIn URL" />
+    </div>
+
+    <div formArrayName="certifications">
+      <div *ngFor="let certification of certifications.controls; let i = index">
+        <label for="certification{{ i }}">Certification</label>
+        <input type="text" [id]="'certification' + i" [formControlName]="i" placeholder="Certification Name" />
+        <button type="button" (click)="removeCertification(i)">Remove</button>
+      </div>
+      <button type="button" (click)="addCertification()">Add Certification</button>
+    </div>
+
+    <div formArrayName="educations">
+      <div *ngFor="let education of educations.controls; let i = index">
+        <label for="education{{ i }}">Education</label>
+        <input type="text" [id]="'education' + i" [formControlName]="i" placeholder="Education Name" />
+        <button type="button" (click)="removeEducation(i)">Remove</button>
+      </div>
+      <button type="button" (click)="addEducation()">Add Education</button>
+    </div>
+
+    <div formArrayName="experiences">
+      <div *ngFor="let experience of experiences.controls; let i = index">
+        <label for="experience{{ i }}">Experience</label>
+        <input type="text" [id]="'experience' + i" [formControlName]="i" placeholder="Experience Name" />
+        <button type="button" (click)="removeExperience(i)">Remove</button>
+      </div>
+      <button type="button" (click)="addExperience()">Add Experience</button>
+    </div>
+
+    <div formArrayName="skills">
+      <div *ngFor="let skill of skills.controls; let i = index">
+        <label for="skill{{ i }}">Skill</label>
+        <input type="text" [id]="'skill' + i" [formControlName]="i" placeholder="Skill" />
+        <button type="button" (click)="removeSkill(i)">Remove</button>
+      </div>
+      <button type="button" (click)="addSkill()">Add Skill</button>
+    </div>
+
+    <div>
+      <label for="templateStyle">Template Style</label>
+      <select formControlName="templateStyle">
+        <option value="Modern">Modern</option>
+        <option value="Classic">Classic</option>
+        <option value="Minimal">Minimal</option>
+      </select>
+    </div>
+
+    <button type="submit" [disabled]="!resumeForm.valid">Save Resume</button>
+  </form>
+
+  <div *ngIf="successMessage" class="success-message">{{ successMessage }}</div>
+  <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+</div>
+
+<app-resume-list />

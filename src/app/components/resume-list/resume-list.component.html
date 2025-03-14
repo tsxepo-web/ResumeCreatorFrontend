@@ -1,0 +1,40 @@
+<div class="resume-list-container">
+  <h2>Resumes</h2>
+
+  <div *ngIf="resumes && resumes.length > 0; else noResumes">
+    <ul>
+      <li *ngFor="let resume of resumes">
+        <div class="resume-card">
+          <div class="resume-header">
+            <h3>{{ resume.personalInfo.name }}</h3>
+
+            <!-- Edit Button -->
+            <button (click)="updateResume(resume)">Edit</button>
+
+            <!-- Delete Button -->
+            <button (click)="deleteResume(resume.id)">Delete</button>
+          </div>
+
+          <div class="resume-body">
+            <p>
+              <strong>Email:</strong> {{ resume.personalInfo.email }}
+            </p>
+            <p>
+              <strong>Phone:</strong> {{ resume.personalInfo.phone }}
+            </p>
+            <p>
+              <strong>LinkedIn:</strong> {{ resume.personalInfo.linkedIn }}
+            </p>
+            <p>
+              <strong>Template Style:</strong> {{ resume.templateStyle }}
+            </p>
+          </div>
+        </div>
+      </li>
+    </ul>
+  </div>
+
+  <ng-template #noResumes>
+    <p>No resumes found.</p>
+  </ng-template>
+</div>
