@@ -40,9 +40,11 @@ export class ResumeListComponent implements OnInit{
       personalInfo: resume.personalInfo,
       templateStyle: resume.templateStyle
     });
-  
+    this.resumeFormService.updateFormArray(this.certifications, resume.certifications, { name: '', authorizingBody: '', dateObtained: '' });
+    this.resumeFormService.updateFormArray(this.educations, resume.educations, { institution: '', degree: '' });
+    this.resumeFormService.updateFormArray(this.experiences, resume.experiences, { jobTitle: '', company: '', responsibility: '' });
+    this.resumeFormService.updateFormArray(this.skills, resume.skills, { name: '' });
   }
-  
 
   updateResume(resume: Resume) {
     if (!this.editingResumeId) return;

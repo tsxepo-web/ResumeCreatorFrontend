@@ -48,7 +48,7 @@ export class ResumeFormService {
         });
         break;
       case 'experiences':
-        newItem = this.fb.group({ jobitle: '', company: '', responsibility: '' });
+        newItem = this.fb.group({ jobTitle: '', company: '', responsibility: '' });
         break;
       case 'skills':
         newItem = this.fb.group({ name: ''});
@@ -65,6 +65,12 @@ export class ResumeFormService {
       formArray.removeAt(index);
     }
   }
+
+  updateFormArray(formArray: FormArray, values: any[], defaultValue: any) {
+    formArray.clear();
+    values.forEach(value => formArray.push(this.fb.group(value || defaultValue)));
+  }
+  
 
   resetForm(form: FormGroup) {
     form.reset();
