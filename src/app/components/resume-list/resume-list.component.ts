@@ -2,12 +2,12 @@ import { Component, EventEmitter, Input, NgModule, OnInit, Output } from '@angul
 import { Resume } from '../../Abstracts/resume.interface';
 import { NgFor, NgIf } from '@angular/common';
 import { ResumeService } from '../../services/resume.service';
-import { FormArray, FormGroup, FormsModule } from '@angular/forms';
+import { FormArray, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ResumeFormService } from '../../services/resume-form.service';
 
 @Component({
   selector: 'app-resume-list',
-  imports: [NgFor, NgIf, FormsModule],
+  imports: [NgFor, NgIf, FormsModule, ReactiveFormsModule],
   templateUrl: './resume-list.component.html',
   styleUrl: './resume-list.component.css'
 })
@@ -33,8 +33,31 @@ export class ResumeListComponent implements OnInit{
     });
   }
 
+  editResume(resume: Resume) {
+    this.editingResumeId = resume.id;
+  
+    this.resumeForm.patchValue({
+      personalInfo: resume.personalInfo,
+      templateStyle: resume.templateStyle
+    });
+  
+  }
+  
+
   updateResume(resume: Resume) {
-    this.resumeService.updateResume(resume).subscribe({
+    if (!this.editingResumeId) return;
+
+    const updatedResume = {
+      id: this.editingResumeId,
+      personalInfo: this.resumeForm.value.personalInfo,
+      templateStyle: this.resumeForm.value.templateStyle,
+      certifications: this.certifications.value,
+      educations: this.educations.value,
+      experiences: this.experiences.value,
+      skills: this.skills.value
+    }
+
+    this.resumeService.updateResume(updatedResume).subscribe({
       next: () => {
         console.log('Resume updated successfully');
         this.getResumes();
@@ -61,60 +84,53 @@ export class ResumeListComponent implements OnInit{
   }
 
   get educations(): FormArray {
-    return this.resumeFormService.getFormArray(this.resumeForm, 'educations');
+    return this.resumeFormService.getFormArray(this.resumeForm, 'educations') as FormArray;
   }
   get experiences(): FormArray {
-    return this.resumeFormService.getFormArray(this.resumeForm, 'experiences');
+    return this.resumeFormService.getFormArray(this.resumeForm, 'experiences') as FormArray;
   }
   get skills(): FormArray {
-    return this.resumeFormService.getFormArray(this.resumeForm, 'skills');
+    return this.resumeFormService.getFormArray(this.resumeForm, 'skills') as FormArray;
   }
 
-  // addCertification(resume: Resume) {
-  //   this.resumeFormService.addItem(this.certifications);
-  // }
+  addCertification() {
+    this.resumeFormService.addItem(this.certifications, 'certifications');
+  }
 
-  // removeCertification(index: number) {
-  //   this.resumeFormService.removeItem(this.certifications, index);
-  // }
-
-
-  // addEducation(resume: Resume) {
-  //   // this.resumeFormService.addItem(this.educations);
-  //   resume.educations.push('');
-
-  // }
-
-  // removeEducation(index: number) {
-  //   this.resumeFormService.removeItem(this.educations, index);
-  // }
+  removeCertification(index: number) {
+    this.resumeFormService.removeItem(this.certifications, index);
+  }
 
 
-  // addExperience(resume: Resume) {
-  //   // this.resumeFormService.addItem(this.experiences);
-  //   resume.experiences.push('');
+  addEducation() {
+    this.resumeFormService.addItem(this.educations, 'educations');
+  }
 
-  // }
-
-  // removeExperience(index: number) {
-  //   this.resumeFormService.removeItem(this.experiences, index);
-  // }
+  removeEducation(index: number) {
+    this.resumeFormService.removeItem(this.educations, index);
+  }
 
 
-  // addSkill(resume: Resume) {
-  //   // this.resumeFormService.addItem(this.skills);
-  //   resume.skills.push('');
+  addExperience() {
+    this.resumeFormService.addItem(this.experiences, 'experiences');
+  }
 
-  // }
+  removeExperience(index: number) {
+    this.resumeFormService.removeItem(this.experiences, index);
+  }
 
-  // removeSkill(index: number) {
-  //   this.resumeFormService.removeItem(this.skills, index);
-  // }
 
-  // resetForm() {
-  //   this.resumeForm.reset();
-  //   this.successMessage = '';
-  //   this.errorMessage = '';
-  // }
+  addSkill() {
+    this.resumeFormService.addItem(this.skills, 'skills');
+  }
 
+  removeSkill(index: number) {
+    this.resumeFormService.removeItem(this.skills, index);
+  }
+
+  resetForm() {
+    this.resumeForm.reset();
+    this.successMessage = '';
+    this.errorMessage = '';
+  }
 }

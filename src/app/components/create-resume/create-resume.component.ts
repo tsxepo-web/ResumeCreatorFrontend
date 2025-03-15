@@ -34,9 +34,6 @@ export class CreateResumeComponent implements OnInit {
 
         const formattedResume = {
           ...formValue,
-          // educations: formValue.certifications.map((edu: any) => ({ 
-          //   institution: edu
-          // }))
         };
 
         console.log('Payload sent:', formattedResume);
@@ -113,4 +110,5 @@ export class CreateResumeComponent implements OnInit {
     this.successMessage = '';
     this.errorMessage = '';
   }
+  
 }
