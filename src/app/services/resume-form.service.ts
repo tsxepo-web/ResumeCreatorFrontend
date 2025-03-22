@@ -97,7 +97,6 @@ export class ResumeFormService {
   }
 
   updateResume(resumeId: string, resume: Resume): Observable<Resume> {
-    console.log('Sending update request for ID:', resume.id);
     return this.http.put<Resume>(`${this.apiUrl}/${resumeId}`, resume);
   }
 

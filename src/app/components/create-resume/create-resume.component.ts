@@ -52,8 +52,6 @@ export class CreateResumeComponent implements OnInit {
   }
 
   populateForm(resume: Resume): void {
-    console.log('Populating form with:', resume);
-
     this.resumeForm.patchValue({
       personalInfo: {
         name: resume.personalInfo.name || '',
@@ -109,28 +107,29 @@ export class CreateResumeComponent implements OnInit {
 
   deleteResume() {
     const resumeId = this.resumeFormService.getSavedResumeId();
-    if (!resumeId) return;
+    if (!resumeId) {
+      this.errorMessage = 'Resume ID not found.';
+      return;
+    }
   
-    this.resumeFormService.deleteResume(resumeId).subscribe({
-      next: () => {
-        this.resumes = this.resumes.filter(resume => resume.id !== resumeId);
+    this.resumeFormService.deleteResume(resumeId).pipe(
+      tap(() => {
+        this.resumes.filter(resume => resume.id !== resumeId);
         this.successMessage = 'Resume deleted successfully!';
-      },
-      error: (error) => {
+      }),
+      catchError((error) => {
+        this.errorMessage = 'Failed to delete resume';
         console.error('Error deleting resume:', error);
-        this.errorMessage = 'Failed to delete resume.';
-      }
-    });
+        return of(null);
+      })
+    ).subscribe();
   }
 
   updateResume(): void {
     if (this.resumeForm.valid && this.resumeId) {
-      const formValue = this.resumeForm.value;
-
       const updatedResume: Resume = { 
-        id: this.resumeId, ...formValue 
+        id: this.resumeId, ...this.resumeForm.value, 
       };
-      console.log('Updating resume:', JSON.stringify(updatedResume, null, 2));
 
       this.resumeFormService.updateResume(this.resumeId, updatedResume).subscribe({
         next: (response) => {
