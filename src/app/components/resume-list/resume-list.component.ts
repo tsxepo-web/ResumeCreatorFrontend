@@ -23,63 +23,63 @@ export class ResumeListComponent implements OnInit{
   }
   
   ngOnInit(): void {
-    this.getResumes();
+    // this.getResumes();
   }
 
-  getResumes() {
-    this.resumeService.getResumes().subscribe((data) => {
-      this.resumes = data.resumes;
-      console.log('Resumes loaded:', this.resumes);
-    });
-  }
+  // getResumes() {
+  //   this.resumeService.getResumes().subscribe((data) => {
+  //     // this.resumes = data;
+  //     console.log('Resumes loaded:', this.resumes);
+  //   });
+  // }
 
-  editResume(resume: Resume) {
-    this.editingResumeId = resume.id;
+  // editResume(resume: Resume) {
+  //   this.editingResumeId = resume.id;
   
-    this.resumeForm.patchValue({
-      personalInfo: resume.personalInfo,
-      templateStyle: resume.templateStyle
-    });
-    this.resumeFormService.updateFormArray(this.certifications, resume.certifications, { name: '', authorizingBody: '', dateObtained: '' });
-    this.resumeFormService.updateFormArray(this.educations, resume.educations, { institution: '', degree: '' });
-    this.resumeFormService.updateFormArray(this.experiences, resume.experiences, { jobTitle: '', company: '', responsibility: '' });
-    this.resumeFormService.updateFormArray(this.skills, resume.skills, { name: '' });
-  }
+  //   this.resumeForm.patchValue({
+  //     personalInfo: resume.personalInfo,
+  //     templateStyle: resume.templateStyle
+  //   });
+  //   this.resumeFormService.updateFormArray(this.certifications, resume.certifications, { name: '', authorizingBody: '', dateObtained: '' });
+  //   this.resumeFormService.updateFormArray(this.educations, resume.educations, { institution: '', degree: '' });
+  //   this.resumeFormService.updateFormArray(this.experiences, resume.experiences, { jobTitle: '', company: '', responsibility: '' });
+  //   this.resumeFormService.updateFormArray(this.skills, resume.skills, { name: '' });
+  // }
 
-  updateResume(resume: Resume) {
-    if (!this.editingResumeId) return;
+  // updateResume(resume: Resume) {
+  //   if (!this.editingResumeId) return;
 
-    const updatedResume = {
-      id: this.editingResumeId,
-      personalInfo: this.resumeForm.value.personalInfo,
-      templateStyle: this.resumeForm.value.templateStyle,
-      certifications: this.certifications.value,
-      educations: this.educations.value,
-      experiences: this.experiences.value,
-      skills: this.skills.value
-    }
+  //   const updatedResume = {
+  //     id: this.editingResumeId,
+  //     personalInfo: this.resumeForm.value.personalInfo,
+  //     templateStyle: this.resumeForm.value.templateStyle,
+  //     certifications: this.certifications.value,
+  //     educations: this.educations.value,
+  //     experiences: this.experiences.value,
+  //     skills: this.skills.value
+  //   }
 
-    this.resumeService.updateResume(updatedResume).subscribe({
-      next: () => {
-        console.log('Resume updated successfully');
-        this.getResumes();
-        this.editingResumeId = null;
-      },
-      error: (error) => console.error('Error updating resume:', error)
-    });
-  }
+  //   this.resumeService.updateResume(updatedResume).subscribe({
+  //     next: () => {
+  //       console.log('Resume updated successfully');
+  //       this.getResumes();
+  //       this.editingResumeId = null;
+  //     },
+  //     error: (error) => console.error('Error updating resume:', error)
+  //   });
+  // }
 
-  deleteResume(id: string) {
-    if (confirm('Are you sure you want to delete this resume?')) {
-      this.resumeService.deleteResume(id).subscribe({
-        next: () => {
-          console.log('Resume deleted successfully');
-          this.resumes = this.resumes.filter(resume => resume.id !== id);
-        },
-        error: (err) => console.error('Error deleting resume:', err)
-      });
-    }
-  }
+  // deleteResume(id: string) {
+  //   if (confirm('Are you sure you want to delete this resume?')) {
+  //     this.resumeService.deleteResume(id).subscribe({
+  //       next: () => {
+  //         console.log('Resume deleted successfully');
+  //         this.resumes = this.resumes.filter(resume => resume.id !== id);
+  //       },
+  //       error: (err) => console.error('Error deleting resume:', err)
+  //     });
+  //   }
+  // }
 
   get certifications(): FormArray {
     return this.resumeFormService.getFormArray(this.resumeForm, 'certifications') as FormArray;

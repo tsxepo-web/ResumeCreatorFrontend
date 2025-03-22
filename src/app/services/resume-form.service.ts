@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Resume } from '../Abstracts/resume.interface';
-import { Observable } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 import { environment } from '../../environments/environment';
 
 @Injectable({
@@ -10,15 +10,16 @@ import { environment } from '../../environments/environment';
 })
 export class ResumeFormService {
   private apiUrl = environment.apiUrl;
+  private storageKey = 'resumeId';
   
   constructor(private fb: FormBuilder, private http: HttpClient) {}
 
   createResumeForm(): FormGroup {
     return this.fb.group({
       personalInfo: this.fb.group({
-        name: ['', Validators.required],
-        email: ['', [Validators.required, Validators.email]],
-        phone: ['', Validators.required],
+        name: [''],
+        email: [''],
+        phone: [''],
         address: [''],
         linkedIn: ['']
       }),
@@ -27,6 +28,13 @@ export class ResumeFormService {
       experiences: this.fb.array([]),
       skills: this.fb.array([]),
       templateStyle: ['']
+    });
+  }
+
+  populateFormArray(formArray: FormArray, items: any[] = []) {
+    formArray.clear();
+    items.forEach((item) => {
+      formArray.push(this.fb.group(item));
     });
   }
 
@@ -71,12 +79,46 @@ export class ResumeFormService {
     values.forEach(value => formArray.push(this.fb.group(value || defaultValue)));
   }
   
+  createResume(resume: Resume): Observable<Resume> {
+    const resumeId = this.getSavedResumeId();
+    if (resumeId) {
+      return new Observable(observer => {
+        observer.error(new Error('User already has a resume'));
+      });
+    }
 
-  resetForm(form: FormGroup) {
-    form.reset();
+    return this.http.post<Resume>(this.apiUrl, { resume }).pipe(
+      tap((response) => {
+        if (response.id) {
+          localStorage.setItem(this.storageKey, response.id);
+        }
+      })
+    );
   }
-  
-  createResume(newResume: Resume): Observable<Resume> {
-    return this.http.post<Resume>(this.apiUrl, newResume);
+
+  updateResume(resumeId: string, resume: Resume): Observable<Resume> {
+    console.log('Sending update request for ID:', resume.id);
+    return this.http.put<Resume>(`${this.apiUrl}/${resumeId}`, resume);
+  }
+
+  getResumeById(id: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/${id}`);
+  }
+
+  getSavedResumeId(): string | null {
+    return localStorage.getItem(this.storageKey);
+  }
+
+  deleteResume(resumeId: string): Observable<void> {
+    return new Observable(observer => {
+      this.http.delete<void>(`${this.apiUrl}/${resumeId}`).subscribe({
+        next: () => {
+          localStorage.removeItem(this.storageKey);
+          observer.next();
+          observer.complete();
+        },
+        error: (error) => observer.error(error)
+      });
+    });
   }
 }

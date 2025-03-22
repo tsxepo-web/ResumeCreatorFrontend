@@ -5,6 +5,7 @@ import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Va
 import { NgFor, NgIf } from '@angular/common';
 import { ResumeFormService } from '../../services/resume-form.service';
 import { ResumeListComponent } from "../resume-list/resume-list.component";
+import { catchError, of, tap } from 'rxjs';
 
 @Component({
   selector: 'app-create-resume',
@@ -17,43 +18,142 @@ export class CreateResumeComponent implements OnInit {
   resumes: Resume[] = [];
   errorMessage: string = '';
   successMessage: string = '';
+  showForm = false;
+  resumeId: string | null = null
+  currentResume: Resume | null = null;
 
 
   constructor(private resumeFormService: ResumeFormService) {
     this.resumeForm = this.resumeFormService.createResumeForm();
   }
-  
+
   ngOnInit(): void {
-    // this.getResumes();
-  }  
+    this.resumeId = this.resumeFormService.getSavedResumeId();
+    if (this.resumeId) {
+      this.loadResumeData(this.resumeId);
+    } else {
+      this.showForm = true;
+    }
+  }
+
+  loadResumeData(resumeId: string) {
+    this.resumeFormService.getResumeById(resumeId).pipe(
+      tap((response) => {
+        this.currentResume = response.resume;
+        this.populateForm(this.currentResume!);
+        this.showForm = true;
+      }),
+      catchError((error) => {
+        this.errorMessage = 'Failed to load resume data.';
+        console.log(error);
+        return of(null);
+      })
+    ).subscribe();
+  }
+
+  populateForm(resume: Resume): void {
+    console.log('Populating form with:', resume);
+
+    this.resumeForm.patchValue({
+      personalInfo: {
+        name: resume.personalInfo.name || '',
+        email: resume.personalInfo?.email || '',
+        phone: resume.personalInfo?.phone || '',
+        address: resume.personalInfo?.address || '',
+        linkedIn: resume.personalInfo?.linkedIn || ''
+      },
+      templateStyle: resume.templateStyle || 'Modern',
+    });
+
+    this.resumeFormService.populateFormArray(this.certifications, resume.certifications || []);
+    this.resumeFormService.populateFormArray(this.educations, resume.educations || []);
+    this.resumeFormService.populateFormArray(this.experiences, resume.experiences || []);
+    this.resumeFormService.populateFormArray(this.skills, resume.skills || []);
+  }
+
+  onSubmit() {
+    if (this.currentResume) {
+      this.updateResume();
+    } else {
+      this.postResume();
+    }
+  }
 
   postResume() {
-      if (this.resumeForm.valid) {
-        const formValue = this.resumeForm.value;
-        console.log('Before format', formValue);
+    if (this.resumeFormService.getSavedResumeId()) {
+      this.errorMessage = 'You can only create one resume!';
+      return;
+    }
+    if (this.resumeForm.valid) {
+      const formValue = this.resumeForm.value as Resume
 
-        const formattedResume = {
-          ...formValue,
-        };
+      console.log('Payload sent:', formValue);
 
-        console.log('Payload sent:', formattedResume);
+      this.resumeFormService.createResume(formValue).subscribe({
+        next: (response) => {
+          this.resumes.push(response);
+          this.resetForm();
+          this.successMessage = 'Resume created successfully!';
+        },
+        error: (error) => {
+          console.log('Error updating resume:', error);
+          this.errorMessage = error.error?.message || 'An unexpected error occurred. Please try again later.';
+
+        }
+      });
+    } else {
+      console.log('Form is invalid');
+      this.errorMessage = 'Please fill in all required fields.';
+    }
+  }
+
+  deleteResume() {
+    const resumeId = this.resumeFormService.getSavedResumeId();
+    if (!resumeId) return;
   
-          this.resumeFormService.createResume(formattedResume).subscribe({
-            next: (response) => {
-              const id = response;
-              const newResume: Resume = { id, ...formattedResume, };
-              this.resumes.push(newResume);
-              this.resetForm();
-              this.successMessage = 'Resume created successfully!';
-            },
-            error: (error) => {
-              console.log('Error updating resume:', error);
-            }
-          });
-      } else {
-        console.log('Form is invalid');
-        this.errorMessage = 'Please fill in all required fields.';
+    this.resumeFormService.deleteResume(resumeId).subscribe({
+      next: () => {
+        this.resumes = this.resumes.filter(resume => resume.id !== resumeId);
+        this.successMessage = 'Resume deleted successfully!';
+      },
+      error: (error) => {
+        console.error('Error deleting resume:', error);
+        this.errorMessage = 'Failed to delete resume.';
       }
+    });
+  }
+
+  updateResume(): void {
+    if (this.resumeForm.valid && this.resumeId) {
+      const formValue = this.resumeForm.value;
+
+      const updatedResume: Resume = { 
+        id: this.resumeId, ...formValue 
+      };
+      console.log('Updating resume:', JSON.stringify(updatedResume, null, 2));
+
+      this.resumeFormService.updateResume(this.resumeId, updatedResume).subscribe({
+        next: (response) => {
+          this.successMessage = 'Resume updated successfully!';
+          this.currentResume = response;
+        },
+        error: (error) => {
+          console.error('Error updating resume:', error);
+          this.errorMessage = 'Failed to update resume';
+        }
+        });
+    } else {
+      this.errorMessage = 'Please fill in all required fields.';
+    }
+  }
+  
+  toggleForm() {
+    this.showForm = !this.showForm;
+    if (this.showForm) {
+      this.resumeForm = this.resumeFormService.createResumeForm();
+    } else {
+      this.resetForm();
+    }
   }
 
   get certifications(): FormArray {
