@@ -9,7 +9,6 @@ import { Resume } from '../Abstracts/resume.interface';
 })
 export class ResumeService {
   private apiUrl = environment.apiUrl;
-  private readonly resumeKey = 'resume_uuid';
 
   constructor(private http: HttpClient) { }
 
@@ -17,9 +16,4 @@ export class ResumeService {
     return this.http.get<Resume>(this.apiUrl);
   }
 
- 
-
-  // deleteResume(id: string): Observable<void> {
-  //   return this.http.delete<any>(`${this.apiUrl}/${id}`);
-  // }
 }

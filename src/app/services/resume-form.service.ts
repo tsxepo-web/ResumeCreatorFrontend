@@ -6,12 +6,12 @@ import { Observable, tap } from 'rxjs';
 import { environment } from '../../environments/environment';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ResumeFormService {
   private apiUrl = environment.apiUrl;
   private storageKey = 'resumeId';
-  
+
   constructor(private fb: FormBuilder, private http: HttpClient) {}
 
   createResumeForm(): FormGroup {
@@ -21,13 +21,13 @@ export class ResumeFormService {
         email: [''],
         phone: [''],
         address: [''],
-        linkedIn: ['']
+        linkedIn: [''],
       }),
       certifications: this.fb.array([]),
       educations: this.fb.array([]),
       experiences: this.fb.array([]),
       skills: this.fb.array([]),
-      templateStyle: ['']
+      templateStyle: [''],
     });
   }
 
@@ -44,22 +44,35 @@ export class ResumeFormService {
 
   addItem(formArray: FormArray, type: string) {
     let newItem;
-  
+
     switch (type) {
       case 'certifications':
-        newItem = this.fb.group({ name: '' });
+        newItem = this.fb.group({
+          name: '',
+          authorizingBody: '',
+          dateObtained: '',
+        });
         break;
       case 'educations':
         newItem = this.fb.group({
           institution: '',
           degree: '',
+          fieldOfStudy: '',
+          startDate: '',
+          endDate: '',
         });
         break;
       case 'experiences':
-        newItem = this.fb.group({ jobTitle: '', company: '', responsibility: '' });
+        newItem = this.fb.group({
+          jobTitle: '',
+          company: '',
+          responsibilities: '',
+          startDate: '',
+          endDate: '',
+        });
         break;
       case 'skills':
-        newItem = this.fb.group({ name: ''});
+        newItem = this.fb.group({ name: '', proficiencyLevel: '' });
         break;
       default:
         newItem = this.fb.control('');
@@ -76,13 +89,15 @@ export class ResumeFormService {
 
   updateFormArray(formArray: FormArray, values: any[], defaultValue: any) {
     formArray.clear();
-    values.forEach(value => formArray.push(this.fb.group(value || defaultValue)));
+    values.forEach((value) =>
+      formArray.push(this.fb.group(value || defaultValue))
+    );
   }
-  
+
   createResume(resume: Resume): Observable<Resume> {
     const resumeId = this.getSavedResumeId();
     if (resumeId) {
-      return new Observable(observer => {
+      return new Observable((observer) => {
         observer.error(new Error('User already has a resume'));
       });
     }
@@ -109,14 +124,14 @@ export class ResumeFormService {
   }
 
   deleteResume(resumeId: string): Observable<void> {
-    return new Observable(observer => {
+    return new Observable((observer) => {
       this.http.delete<void>(`${this.apiUrl}/${resumeId}`).subscribe({
         next: () => {
           localStorage.removeItem(this.storageKey);
           observer.next();
           observer.complete();
         },
-        error: (error) => observer.error(error)
+        error: (error) => observer.error(error),
       });
     });
   }

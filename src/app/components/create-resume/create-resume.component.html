@@ -40,6 +40,8 @@
       <div *ngFor="let certification of certifications.controls; let i = index">
         <div [formGroupName]="i">
           <input formControlName="name" placeholder="Certification Name" />
+          <input formControlName="authorizingBody" placeholder="Authorizing Body" />
+          <input formControlName="dateObtained" placeholder="Date Obtained" />
           <button type="button" (click)="removeCertification(i)">Remove</button>
         </div>
       </div>
@@ -53,6 +55,9 @@
           <input formControlName="institution" placeholder="Institution" />
           <input formControlName="degree" placeholder="Degree" />
           <input formControlName="fieldOfStudy" placeholder="Field Of Study" />
+          <input formControlName="startDate" placeholder="Start Date" />
+          <input formControlName="endDate" placeholder="End Date" />
+          
           <button type="button" (click)="removeEducation(i)">Remove</button>
         </div>
       </div>
@@ -67,6 +72,8 @@
           <input formControlName="jobTitle" placeholder="Job Title" />
           <input formControlName="company" placeholder="Company" />
           <input formControlName="responsibilities" placeholder="Responsibilities" />
+          <input formControlName="startDate" placeholder="Start Date" />
+          <input formControlName="endDate" placeholder="End Date" />
           <button type="button" (click)="removeExperience(i)">Remove</button>
         </div>
       </div>
@@ -79,6 +86,7 @@
       <div *ngFor="let skill of skills.controls; let i = index">
         <div [formGroupName]="i">
           <input formControlName="name" placeholder="Skill Name" />
+          <input formControlName="proficiencyLevel" placeholder="Proficiency Level" />
           <button type="button" (click)="removeSkill(i)">Remove</button>
         </div>
       </div>
