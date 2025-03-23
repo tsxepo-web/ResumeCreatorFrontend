@@ -3,20 +3,19 @@ import { ResumeService } from '../../services/resume.service';
 import { Resume } from '../../Abstracts/resume.interface';
 import {
   FormArray,
-  FormBuilder,
   FormGroup,
   FormsModule,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
 import { NgFor, NgIf } from '@angular/common';
-import { ResumeFormService } from '../../services/resume-form.service';
-import { ResumeListComponent } from '../resume-list/resume-list.component';
+import { FormService } from '../../services/form.service';
 import { catchError, of, tap } from 'rxjs';
+import { ErrorHandlerService } from '../../services/error-handler.service';
 
 @Component({
   selector: 'app-create-resume',
-  imports: [ReactiveFormsModule, NgFor, NgIf, ResumeListComponent, FormsModule],
+  imports: [ReactiveFormsModule, NgFor, NgIf, FormsModule],
   templateUrl: './create-resume.component.html',
   styleUrl: './create-resume.component.css',
 })
@@ -29,12 +28,16 @@ export class CreateResumeComponent implements OnInit {
   resumeId: string | null = null;
   currentResume: Resume | null = null;
 
-  constructor(private resumeFormService: ResumeFormService) {
-    this.resumeForm = this.resumeFormService.createResumeForm();
+  constructor(
+    private formService: FormService,
+    private resumeService: ResumeService,
+    private errorHandleService: ErrorHandlerService // private location: Location
+  ) {
+    this.resumeForm = this.formService.createResumeForm();
   }
 
   ngOnInit(): void {
-    this.resumeId = this.resumeFormService.getSavedResumeId();
+    this.resumeId = this.resumeService.getSavedResumeId();
     if (this.resumeId) {
       this.loadResumeData(this.resumeId);
     } else {
@@ -42,8 +45,21 @@ export class CreateResumeComponent implements OnInit {
     }
   }
 
+  onSubmit() {
+    if (this.currentResume) {
+      this.updateResume();
+    } else {
+      this.postResume();
+    }
+  }
+
+  reloadPage() {
+    console.log('Reloading...');
+    window.location.reload();
+  }
+
   loadResumeData(resumeId: string) {
-    this.resumeFormService
+    this.resumeService
       .getResumeById(resumeId)
       .pipe(
         tap((response) => {
@@ -72,170 +88,161 @@ export class CreateResumeComponent implements OnInit {
       templateStyle: resume.templateStyle || 'Modern',
     });
 
-    this.resumeFormService.populateFormArray(
+    this.formService.populateFormArray(
       this.certifications,
       resume.certifications || []
     );
-    this.resumeFormService.populateFormArray(
+    this.formService.populateFormArray(
       this.educations,
       resume.educations || []
     );
-    this.resumeFormService.populateFormArray(
+    this.formService.populateFormArray(
       this.experiences,
       resume.experiences || []
     );
-    this.resumeFormService.populateFormArray(this.skills, resume.skills || []);
-  }
-
-  onSubmit() {
-    if (this.currentResume) {
-      this.updateResume();
-    } else {
-      this.postResume();
-    }
+    this.formService.populateFormArray(this.skills, resume.skills || []);
   }
 
   postResume() {
-    if (this.resumeFormService.getSavedResumeId()) {
+    if (this.resumeService.getSavedResumeId()) {
       this.errorMessage = 'You can only create one resume!';
       return;
     }
-    if (this.resumeForm.valid) {
-      const formValue = this.resumeForm.value as Resume;
-
-      console.log('Payload sent:', formValue);
-
-      this.resumeFormService.createResume(formValue).subscribe({
-        next: (response) => {
-          this.resumes.push(response);
-          this.resetForm();
-          this.successMessage = 'Resume created successfully!';
-        },
-        error: (error) => {
-          console.log('Error updating resume:', error);
-          this.errorMessage =
-            error.error?.message ||
-            'An unexpected error occurred. Please try again later.';
-        },
-      });
-    } else {
-      console.log('Form is invalid');
+    if (!this.resumeForm.valid) {
       this.errorMessage = 'Please fill in all required fields.';
-    }
-  }
-
-  deleteResume() {
-    const resumeId = this.resumeFormService.getSavedResumeId();
-    if (!resumeId) {
-      this.errorMessage = 'Resume ID not found.';
       return;
     }
 
-    this.resumeFormService
-      .deleteResume(resumeId)
+    const formValue = this.resumeForm.value as Resume;
+
+    console.log('Testing');
+    this.resumeService
+      .createResume(formValue)
       .pipe(
-        tap(() => {
-          this.resumes.filter((resume) => resume.id !== resumeId);
-          this.successMessage = 'Resume deleted successfully!';
+        tap((response) => {
+          this.resumes.push(response);
+          this.resetForm();
+          this.successMessage = 'Resume created successfully!';
+          this.reloadPage();
         }),
         catchError((error) => {
-          this.errorMessage = 'Failed to delete resume';
-          console.error('Error deleting resume:', error);
+          this.errorHandleService.handleError(error);
           return of(null);
         })
       )
       .subscribe();
   }
 
-  updateResume(): void {
-    if (this.resumeForm.valid && this.resumeId) {
-      const updatedResume: Resume = {
-        id: this.resumeId,
-        ...this.resumeForm.value,
-      };
-
-      this.resumeFormService
-        .updateResume(this.resumeId, updatedResume)
-        .subscribe({
-          next: (response) => {
-            this.successMessage = 'Resume updated successfully!';
-            this.currentResume = response;
-          },
-          error: (error) => {
-            console.error('Error updating resume:', error);
-            this.errorMessage = 'Failed to update resume';
-          },
-        });
-    } else {
-      this.errorMessage = 'Please fill in all required fields.';
+  deleteResume() {
+    const resumeId = this.resumeService.getSavedResumeId();
+    if (!resumeId) {
+      this.errorMessage = 'Resume ID not found.';
+      return;
     }
+
+    this.resumeService.deleteResume(resumeId).pipe(
+      tap(() => {
+        this.resumes.filter((resume) => resume.id !== resumeId);
+        this.successMessage = 'Resume deleted successfully!';
+      }),
+      catchError((error) => this.errorHandleService.handleError(error))
+    );
+  }
+
+  updateResume(): void {
+    const validationError = this.errorHandleService.validateUpdateResume(
+      this.resumeForm,
+      this.resumeId!
+    );
+    if (validationError) {
+      this.errorHandleService.handleError(validationError);
+      return;
+    }
+
+    const updatedResume: Resume = {
+      id: this.resumeId,
+      ...this.resumeForm.value,
+    };
+
+    this.resumeService
+      .updateResume(this.resumeId!, updatedResume)
+      .pipe(
+        tap((response) => {
+          this.successMessage = 'Resume updated successfully!';
+          this.currentResume = response;
+        }),
+        catchError((error) => {
+          return this.errorHandleService.handleError(error);
+        })
+      )
+      .subscribe();
   }
 
   toggleForm() {
     this.showForm = !this.showForm;
     if (this.showForm) {
-      this.resumeForm = this.resumeFormService.createResumeForm();
+      this.resumeForm = this.formService.createResumeForm();
     } else {
       this.resetForm();
     }
   }
 
   get certifications(): FormArray {
-    return this.resumeFormService.getFormArray(
+    return this.formService.getFormArray(
       this.resumeForm,
       'certifications'
     ) as FormArray;
   }
 
   get educations(): FormArray {
-    return this.resumeFormService.getFormArray(
+    return this.formService.getFormArray(
       this.resumeForm,
       'educations'
     ) as FormArray;
   }
   get experiences(): FormArray {
-    return this.resumeFormService.getFormArray(
+    return this.formService.getFormArray(
       this.resumeForm,
       'experiences'
     ) as FormArray;
   }
   get skills(): FormArray {
-    return this.resumeFormService.getFormArray(
+    return this.formService.getFormArray(
       this.resumeForm,
       'skills'
     ) as FormArray;
   }
 
   addCertification() {
-    this.resumeFormService.addItem(this.certifications, 'certifications');
+    this.formService.addItem(this.certifications, 'certifications');
   }
 
   removeCertification(index: number) {
-    this.resumeFormService.removeItem(this.certifications, index);
+    this.formService.removeItem(this.certifications, index);
   }
 
   addEducation() {
-    this.resumeFormService.addItem(this.educations, 'educations');
+    this.formService.addItem(this.educations, 'educations');
   }
 
   removeEducation(index: number) {
-    this.resumeFormService.removeItem(this.educations, index);
+    this.formService.removeItem(this.educations, index);
   }
 
   addExperience() {
-    this.resumeFormService.addItem(this.experiences, 'experiences');
+    this.formService.addItem(this.experiences, 'experiences');
   }
 
   removeExperience(index: number) {
-    this.resumeFormService.removeItem(this.experiences, index);
+    this.formService.removeItem(this.experiences, index);
   }
 
   addSkill() {
-    this.resumeFormService.addItem(this.skills, 'skills');
+    this.formService.addItem(this.skills, 'skills');
   }
 
   removeSkill(index: number) {
-    this.resumeFormService.removeItem(this.skills, index);
+    this.formService.removeItem(this.skills, index);
   }
 
   resetForm() {

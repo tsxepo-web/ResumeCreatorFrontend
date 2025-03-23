@@ -1,18 +1,11 @@
-import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Resume } from '../Abstracts/resume.interface';
-import { Observable, tap } from 'rxjs';
-import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
-export class ResumeFormService {
-  private apiUrl = environment.apiUrl;
-  private storageKey = 'resumeId';
-
-  constructor(private fb: FormBuilder, private http: HttpClient) {}
+export class FormService {
+  constructor(private fb: FormBuilder) {}
 
   createResumeForm(): FormGroup {
     return this.fb.group({
@@ -92,47 +85,5 @@ export class ResumeFormService {
     values.forEach((value) =>
       formArray.push(this.fb.group(value || defaultValue))
     );
-  }
-
-  createResume(resume: Resume): Observable<Resume> {
-    const resumeId = this.getSavedResumeId();
-    if (resumeId) {
-      return new Observable((observer) => {
-        observer.error(new Error('User already has a resume'));
-      });
-    }
-
-    return this.http.post<Resume>(this.apiUrl, { resume }).pipe(
-      tap((response) => {
-        if (response.id) {
-          localStorage.setItem(this.storageKey, response.id);
-        }
-      })
-    );
-  }
-
-  updateResume(resumeId: string, resume: Resume): Observable<Resume> {
-    return this.http.put<Resume>(`${this.apiUrl}/${resumeId}`, resume);
-  }
-
-  getResumeById(id: string): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/${id}`);
-  }
-
-  getSavedResumeId(): string | null {
-    return localStorage.getItem(this.storageKey);
-  }
-
-  deleteResume(resumeId: string): Observable<void> {
-    return new Observable((observer) => {
-      this.http.delete<void>(`${this.apiUrl}/${resumeId}`).subscribe({
-        next: () => {
-          localStorage.removeItem(this.storageKey);
-          observer.next();
-          observer.complete();
-        },
-        error: (error) => observer.error(error),
-      });
-    });
   }
 }

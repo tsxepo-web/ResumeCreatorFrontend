@@ -8,6 +8,8 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideHttpClient(),
     ReactiveFormsModule,
-    provideZoneChangeDetection({ eventCoalescing: true }), provideRouter(routes), 
-  ]
+    // Location,
+    provideZoneChangeDetection({ eventCoalescing: true }),
+    provideRouter(routes),
+  ],
 };
