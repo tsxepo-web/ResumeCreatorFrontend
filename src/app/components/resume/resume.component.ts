@@ -14,12 +14,13 @@ import { catchError, of, tap } from 'rxjs';
 import { ErrorHandlerService } from '../../services/error-handler.service';
 
 @Component({
-  selector: 'app-create-resume',
+  selector: 'app-resume',
+  standalone: true,
   imports: [ReactiveFormsModule, NgFor, NgIf, FormsModule],
-  templateUrl: './create-resume.component.html',
-  styleUrl: './create-resume.component.css',
+  templateUrl: './resume.component.html',
+  styleUrl: './resume.component.css',
 })
-export class CreateResumeComponent implements OnInit {
+export class ResumeComponent implements OnInit {
   resumeForm: FormGroup;
   resumes: Resume[] = [];
   errorMessage: string = '';
@@ -31,7 +32,7 @@ export class CreateResumeComponent implements OnInit {
   constructor(
     private formService: FormService,
     private resumeService: ResumeService,
-    private errorHandleService: ErrorHandlerService // private location: Location
+    private errorHandleService: ErrorHandlerService
   ) {
     this.resumeForm = this.formService.createResumeForm();
   }
@@ -54,7 +55,7 @@ export class CreateResumeComponent implements OnInit {
   }
 
   reloadPage() {
-    console.log('Reloading...');
+    console.log('Reloading page...');
     window.location.reload();
   }
 
