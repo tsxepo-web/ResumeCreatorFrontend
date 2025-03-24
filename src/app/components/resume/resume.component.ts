@@ -141,13 +141,19 @@ export class ResumeComponent implements OnInit {
       return;
     }
 
-    this.resumeService.deleteResume(resumeId).pipe(
-      tap(() => {
-        this.resumes.filter((resume) => resume.id !== resumeId);
-        this.successMessage = 'Resume deleted successfully!';
-      }),
-      catchError((error) => this.errorHandleService.handleError(error))
-    );
+    this.resumeService
+      .deleteResume(resumeId)
+      .pipe(
+        tap(() => {
+          this.resumes.filter((resume) => resume.id !== resumeId);
+          this.successMessage = 'Resume deleted successfully!';
+        }),
+        catchError((error) => {
+          this.errorHandleService.handleError(error);
+          return of(null);
+        })
+      )
+      .subscribe();
   }
 
   updateResume(): void {

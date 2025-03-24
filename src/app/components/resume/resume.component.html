@@ -4,6 +4,7 @@
   <button type="button" (click)="toggleForm()">
     {{ showForm ? "Cancel" : "Edit Resume" }}
   </button>
+
   <button (click)="deleteResume()" *ngIf="currentResume">Delete Resume</button>
 
   <form *ngIf="showForm" [formGroup]="resumeForm" (ngSubmit)="onSubmit()">
